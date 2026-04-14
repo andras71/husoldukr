@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Magyar zászló -->
+  <rect x="0" y="0" width="32" height="64" fill="#ce2939"/>
+  <rect x="0" y="21.33" width="32" height="21.33" fill="#ffffff"/>
+  <rect x="0" y="42.66" width="32" height="21.34" fill="#477050"/>
+
+  <!-- Ukrán zászló -->
+  <rect x="32" y="0" width="32" height="32" fill="#0057b7"/>
+  <rect x="32" y="32" width="32" height="32" fill="#ffd700"/>
+</svg>
