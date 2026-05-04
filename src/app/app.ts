@@ -33,13 +33,13 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   private elapsedIntervalId: number | null = null;
 
 // pontos dátumot ide állítsd
-  private readonly oathDate = new Date('2026-05-04T13:10:00+02:00');
+  private readonly oathDate = new Date('2026-05-09T15:00:00+02:00');
 
   private spinIntervals: number[] = [];
   private stopTimeouts: number[] = [];
   private startTimeoutId: number | null = null;
 
-  private targetTimestamp = new Date('2026-05-04T13:10:00').getTime(); // ide a saját időpontod
+  private targetTimestamp = new Date('2026-05-05T15:00:00').getTime(); // ide a saját időpontod
   private timer?: any;
 
   constructor(
