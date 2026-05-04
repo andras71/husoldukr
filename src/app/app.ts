@@ -32,14 +32,26 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   private elapsedIntervalId: number | null = null;
 
+  private initDate = new Date('2026-05-09T15:00:00+02:00');
+
 // pontos dátumot ide állítsd
-  private readonly oathDate = new Date('2026-05-09T15:00:00+02:00');
+  private readonly oathDate = this.initDate;
+
+  countdownFlip = {
+    days: { value: '0', flipping: false },
+    hours: { value: '00', flipping: false },
+    minutes: { value: '00', flipping: false },
+    seconds: { value: '00', flipping: false }
+  };
+
+// IDE állítsd a cél timestampet
+  private readonly countdownTargetDate = this.initDate;
 
   private spinIntervals: number[] = [];
   private stopTimeouts: number[] = [];
   private startTimeoutId: number | null = null;
 
-  private targetTimestamp = new Date('2026-05-05T15:00:00').getTime(); // ide a saját időpontod
+  private targetTimestamp = this.initDate.getTime();
   private timer?: any;
 
   constructor(
@@ -62,6 +74,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
     this.elapsedIntervalId = window.setInterval(() => {
       this.updateElapsedTime();
+      this.updateCountdownTime();
     }, 1000);
     this.startTimeoutId = window.setTimeout(() => {
       this.startOdometer();
@@ -208,5 +221,47 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   private pad2(value: number): string {
     return value.toString().padStart(2, '0');
+  }
+  private updateCountdownTime(): void {
+    const diffMs = this.countdownTargetDate.getTime() - Date.now();
+    const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+
+    const next = {
+      days: String(Math.floor(totalSeconds / 86400)),
+      hours: this.pad2(Math.floor((totalSeconds % 86400) / 3600)),
+      minutes: this.pad2(Math.floor((totalSeconds % 3600) / 60)),
+      seconds: this.pad2(totalSeconds % 60)
+    };
+
+    this.setCountdownFlipValue('days', next.days);
+    this.setCountdownFlipValue('hours', next.hours);
+    this.setCountdownFlipValue('minutes', next.minutes);
+    this.setCountdownFlipValue('seconds', next.seconds);
+
+    this.cdr.detectChanges();
+  }
+
+  private setCountdownFlipValue(
+    key: 'days' | 'hours' | 'minutes' | 'seconds',
+    nextValue: string
+  ): void {
+    const item = this.countdownFlip[key];
+
+    if (item.value === nextValue) {
+      return;
+    }
+
+    item.flipping = false;
+
+    window.setTimeout(() => {
+      item.value = nextValue;
+      item.flipping = true;
+      this.cdr.detectChanges();
+
+      window.setTimeout(() => {
+        item.flipping = false;
+        this.cdr.detectChanges();
+      }, 650);
+    }, 20);
   }
 }

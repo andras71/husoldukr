@@ -1,21 +1,55 @@
 <div class="page-bg">
   <div class="hero-card">
-    <div class="flags-wrap" aria-label="Magyar és ukrán zászló">
-      <div class="flag-pole left-pole"></div>
-      <div class="flag-pole right-pole"></div>
+    <div *ngIf="isVisible">
+      <div class="flags-wrap" aria-label="Magyar és ukrán zászló">
+        <div class="flag-pole left-pole"></div>
+        <div class="flag-pole right-pole"></div>
 
-      <div class="flag-group left-group">
-        <div class="flag hungary" title="Magyarország zászlaja">
-          <span class="stripe red"></span>
-          <span class="stripe white"></span>
-          <span class="stripe green"></span>
+        <div class="flag-group left-group">
+          <div class="flag hungary" title="Magyarország zászlaja">
+            <span class="stripe red"></span>
+            <span class="stripe white"></span>
+            <span class="stripe green"></span>
+          </div>
+        </div>
+
+        <div class="flag-group right-group">
+          <div class="flag ukraine" title="Ukrajna zászlaja">
+            <span class="stripe blue"></span>
+            <span class="stripe yellow"></span>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="flag-group right-group">
-        <div class="flag ukraine" title="Ukrajna zászlaja">
-          <span class="stripe blue"></span>
-          <span class="stripe yellow"></span>
+    <div *ngIf="!isVisible">
+      <div class="station-clock" aria-label="Hátralévő idő">
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="countdownFlip.days.flipping">
+            <span>{{ countdownFlip.days.value }}</span>
+          </div>
+          <div class="flip-label">nap</div>
+        </div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="countdownFlip.hours.flipping">
+            <span>{{ countdownFlip.hours.value }}</span>
+          </div>
+          <div class="flip-label">óra</div>
+        </div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="countdownFlip.minutes.flipping">
+            <span>{{ countdownFlip.minutes.value }}</span>
+          </div>
+          <div class="flip-label">perc</div>
+        </div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="countdownFlip.seconds.flipping">
+            <span>{{ countdownFlip.seconds.value }}</span>
+          </div>
+          <div class="flip-label">másodperc</div>
         </div>
       </div>
     </div>
