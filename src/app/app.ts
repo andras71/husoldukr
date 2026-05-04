@@ -1,4 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import {CommonModule} from '@angular/common';
 
 type ReelState = {
   offset: number;
@@ -7,13 +8,15 @@ type ReelState = {
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit, AfterViewInit, OnDestroy {
   readonly reelCount = 7;
   readonly stripDigits = Array.from({ length: 200 }, (_, i) => i % 10);
+
+  isVisible = false;
 
   reels: ReelState[] = Array.from({ length: this.reelCount }, () => ({
     offset: 0,
@@ -30,11 +33,14 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   private elapsedIntervalId: number | null = null;
 
 // pontos dátumot ide állítsd
-  private readonly oathDate = new Date('2026-05-03T10:00:00+02:00');
+  private readonly oathDate = new Date('2026-05-04T13:10:00+02:00');
 
   private spinIntervals: number[] = [];
   private stopTimeouts: number[] = [];
   private startTimeoutId: number | null = null;
+
+  private targetTimestamp = new Date('2026-05-04T13:10:00').getTime(); // ide a saját időpontod
+  private timer?: any;
 
   constructor(
     private readonly cdr: ChangeDetectorRef,
@@ -43,6 +49,12 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.prepareInitialState();
+    this.checkTime();
+
+    // másodpercenként ellenőriz
+    this.timer = setInterval(() => {
+      this.checkTime();
+    }, 1000);
   }
 
   ngAfterViewInit(): void {
@@ -63,8 +75,14 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     if (this.startTimeoutId !== null) {
       window.clearTimeout(this.startTimeoutId);
     }
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
-
+  private checkTime() {
+    const now = Date.now();
+    this.isVisible = now >= this.targetTimestamp;
+  }
   trackIndex(index: number): number {
     return index;
   }

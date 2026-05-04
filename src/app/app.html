@@ -20,51 +20,52 @@
       </div>
     </div>
 
-    <div class="headline">MAGYAR PÉTER eskütétele óta eltelt idő</div>
+    <div *ngIf="isVisible">
+      <div class="headline">MAGYAR PÉTER eskütétele óta eltelt idő</div>
 
-    <div class="station-clock" aria-label="Eltelt idő">
-      <div class="flip-unit">
-        <div class="flip-card" [class.flipping]="elapsedFlip.days.flipping">
-          <span>{{ elapsedFlip.days.value }}</span>
+      <div class="station-clock" aria-label="Eltelt idő">
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="elapsedFlip.days.flipping">
+            <span>{{ elapsedFlip.days.value }}</span>
+          </div>
+          <div class="flip-label">nap</div>
         </div>
-        <div class="flip-label">nap</div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="elapsedFlip.hours.flipping">
+            <span>{{ elapsedFlip.hours.value }}</span>
+          </div>
+          <div class="flip-label">óra</div>
+        </div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="elapsedFlip.minutes.flipping">
+            <span>{{ elapsedFlip.minutes.value }}</span>
+          </div>
+          <div class="flip-label">perc</div>
+        </div>
+
+        <div class="flip-unit">
+          <div class="flip-card" [class.flipping]="elapsedFlip.seconds.flipping">
+            <span>{{ elapsedFlip.seconds.value }}</span>
+          </div>
+          <div class="flip-label">másodperc</div>
+        </div>
       </div>
 
-      <div class="flip-unit">
-        <div class="flip-card" [class.flipping]="elapsedFlip.hours.flipping">
-          <span>{{ elapsedFlip.hours.value }}</span>
-        </div>
-        <div class="flip-label">óra</div>
+      <div class="subheadline">
+        Ukrajnába harcolni küldött magyar katonák száma
       </div>
 
-      <div class="flip-unit">
-        <div class="flip-card" [class.flipping]="elapsedFlip.minutes.flipping">
-          <span>{{ elapsedFlip.minutes.value }}</span>
-        </div>
-        <div class="flip-label">perc</div>
-      </div>
+      <div class="counter-shell" aria-live="polite">
+        @if (false) {
+          <div class="counter-label">Aktuális érték</div>
+        }
+        <div class="counter-display">
+          <span class="currency">#</span>
 
-      <div class="flip-unit">
-        <div class="flip-card" [class.flipping]="elapsedFlip.seconds.flipping">
-          <span>{{ elapsedFlip.seconds.value }}</span>
-        </div>
-        <div class="flip-label">másodperc</div>
-      </div>
-    </div>
-
-    <div class="subheadline">
-      Ukrajnába harcolni küldött magyar katonák száma
-    </div>
-
-    <div class="counter-shell" aria-live="polite">
-      @if(false) {
-      <div class="counter-label">Aktuális érték</div>
-      }
-      <div class="counter-display">
-        <span class="currency">#</span>
-
-        @for (reel of reels; track trackIndex($index)) {
-          <span class="digit-window">
+          @for (reel of reels; track trackIndex($index)) {
+            <span class="digit-window">
     <span
       class="digit-reel"
       [style.transform]="getTransform(reel.offset)"
@@ -74,13 +75,15 @@
       }
     </span>
   </span>
+          }
+        </div>
+        @if (false) {
+          <div class="counter-caption">
+            A dobok külön tempóban futnak, majd egymás után nullára fékeznek.
+          </div>
         }
       </div>
-      @if(false) {
-      <div class="counter-caption">
-        A dobok külön tempóban futnak, majd egymás után nullára fékeznek.
-      </div>
-      }
     </div>
   </div>
+
 </div>
