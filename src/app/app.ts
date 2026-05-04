@@ -20,6 +20,18 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     transitionMs: 0
   }));
 
+  elapsedFlip = {
+    days: { value: '0', flipping: false },
+    hours: { value: '00', flipping: false },
+    minutes: { value: '00', flipping: false },
+    seconds: { value: '00', flipping: false }
+  };
+
+  private elapsedIntervalId: number | null = null;
+
+// pontos dátumot ide állítsd
+  private readonly oathDate = new Date('2026-05-03T10:00:00+02:00');
+
   private spinIntervals: number[] = [];
   private stopTimeouts: number[] = [];
   private startTimeoutId: number | null = null;
@@ -34,6 +46,11 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.updateElapsedTime();
+
+    this.elapsedIntervalId = window.setInterval(() => {
+      this.updateElapsedTime();
+    }, 1000);
     this.startTimeoutId = window.setTimeout(() => {
       this.startOdometer();
     }, 150);
@@ -126,5 +143,52 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   private randomDigit(): number {
     return Math.floor(Math.random() * 10);
+  }
+
+  private updateElapsedTime(): void {
+    const diffMs = Date.now() - this.oathDate.getTime();
+    const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+
+    const next = {
+      days: String(Math.floor(totalSeconds / 86400)),
+      hours: this.pad2(Math.floor((totalSeconds % 86400) / 3600)),
+      minutes: this.pad2(Math.floor((totalSeconds % 3600) / 60)),
+      seconds: this.pad2(totalSeconds % 60)
+    };
+
+    this.setFlipValue('days', next.days);
+    this.setFlipValue('hours', next.hours);
+    this.setFlipValue('minutes', next.minutes);
+    this.setFlipValue('seconds', next.seconds);
+
+    this.cdr.detectChanges();
+  }
+
+  private setFlipValue(
+    key: 'days' | 'hours' | 'minutes' | 'seconds',
+    nextValue: string
+  ): void {
+    const item = this.elapsedFlip[key];
+
+    if (item.value === nextValue) {
+      return;
+    }
+
+    item.flipping = false;
+
+    window.setTimeout(() => {
+      item.value = nextValue;
+      item.flipping = true;
+      this.cdr.detectChanges();
+
+      window.setTimeout(() => {
+        item.flipping = false;
+        this.cdr.detectChanges();
+      }, 650);
+    }, 20);
+  }
+
+  private pad2(value: number): string {
+    return value.toString().padStart(2, '0');
   }
 }
