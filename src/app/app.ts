@@ -32,7 +32,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   private elapsedIntervalId: number | null = null;
 
-  private initDate = new Date('2026-05-09T15:00:00+02:00');
+  private initDate = new Date('2026-05-09T14:30:00+02:00');
 
 // pontos dátumot ide állítsd
   private readonly oathDate = this.initDate;
