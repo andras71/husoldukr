@@ -1,5 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, inject } from '@angular/core';
 import {CommonModule} from '@angular/common';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 
 type ReelState = {
   offset: number;
@@ -10,7 +19,7 @@ type ReelState = {
   selector: 'app-root',
   imports: [CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App implements OnInit, AfterViewInit, OnDestroy {
   readonly reelCount = 7;
@@ -20,31 +29,31 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   reels: ReelState[] = Array.from({ length: this.reelCount }, () => ({
     offset: 0,
-    transitionMs: 0
+    transitionMs: 0,
   }));
 
   elapsedFlip = {
     days: { value: '0', flipping: false },
     hours: { value: '00', flipping: false },
     minutes: { value: '00', flipping: false },
-    seconds: { value: '00', flipping: false }
+    seconds: { value: '00', flipping: false },
   };
 
   private elapsedIntervalId: number | null = null;
 
   private initDate = new Date('2026-05-09T14:30:00+02:00');
 
-// pontos dátumot ide állítsd
+  // pontos dátumot ide állítsd
   private readonly oathDate = this.initDate;
 
   countdownFlip = {
     days: { value: '0', flipping: false },
     hours: { value: '00', flipping: false },
     minutes: { value: '00', flipping: false },
-    seconds: { value: '00', flipping: false }
+    seconds: { value: '00', flipping: false },
   };
 
-// IDE állítsd a cél timestampet
+  // IDE állítsd a cél timestampet
   private readonly countdownTargetDate = this.initDate;
 
   private spinIntervals: number[] = [];
@@ -54,10 +63,22 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   private targetTimestamp = this.initDate.getTime();
   private timer?: any;
 
+  private readonly router = inject(Router);
+
   constructor(
     private readonly cdr: ChangeDetectorRef,
-    private readonly elementRef: ElementRef<HTMLElement>
-  ) {}
+    private readonly elementRef: ElementRef<HTMLElement>,
+  ) {
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        window.gtag?.('event', 'page_view', {
+          page_path: event.urlAfterRedirects,
+          page_location: window.location.href,
+          page_title: document.title,
+        });
+      });
+  }
 
   ngOnInit(): void {
     this.prepareInitialState();
@@ -82,8 +103,8 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.spinIntervals.forEach(id => window.clearInterval(id));
-    this.stopTimeouts.forEach(id => window.clearTimeout(id));
+    this.spinIntervals.forEach((id) => window.clearInterval(id));
+    this.stopTimeouts.forEach((id) => window.clearTimeout(id));
 
     if (this.startTimeoutId !== null) {
       window.clearTimeout(this.startTimeoutId);
@@ -108,7 +129,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   private prepareInitialState(): void {
     this.reels = Array.from({ length: this.reelCount }, () => ({
       offset: 20 + this.randomDigit(),
-      transitionMs: 0
+      transitionMs: 0,
     }));
 
     this.cdr.detectChanges();
@@ -118,34 +139,40 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     this.reels.forEach((reel, index) => {
       let currentOffset = reel.offset;
 
-      const intervalId = window.setInterval(() => {
-        const step = 1 + Math.floor(Math.random() * 3);
-        currentOffset += step;
+      const intervalId = window.setInterval(
+        () => {
+          const step = 1 + Math.floor(Math.random() * 3);
+          currentOffset += step;
 
-        this.reels[index] = {
-          offset: currentOffset,
-          transitionMs: 80 + index * 10
-        };
+          this.reels[index] = {
+            offset: currentOffset,
+            transitionMs: 80 + index * 10,
+          };
 
-        this.reels = [...this.reels];
-        this.cdr.detectChanges();
-      }, 90 + index * 15);
+          this.reels = [...this.reels];
+          this.cdr.detectChanges();
+        },
+        90 + index * 15,
+      );
 
       this.spinIntervals.push(intervalId);
 
-      const stopTimeoutId = window.setTimeout(() => {
-        window.clearInterval(intervalId);
+      const stopTimeoutId = window.setTimeout(
+        () => {
+          window.clearInterval(intervalId);
 
-        const targetOffset = this.getSafeFinalOffset(index, currentOffset);
+          const targetOffset = this.getSafeFinalOffset(index, currentOffset);
 
-        this.reels[index] = {
-          offset: targetOffset,
-          transitionMs: 1200 + index * 180
-        };
+          this.reels[index] = {
+            offset: targetOffset,
+            transitionMs: 1200 + index * 180,
+          };
 
-        this.reels = [...this.reels];
-        this.cdr.detectChanges();
-      }, 1800 + index * 450);
+          this.reels = [...this.reels];
+          this.cdr.detectChanges();
+        },
+        1800 + index * 450,
+      );
 
       this.stopTimeouts.push(stopTimeoutId);
     });
@@ -184,7 +211,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       days: String(Math.floor(totalSeconds / 86400)),
       hours: this.pad2(Math.floor((totalSeconds % 86400) / 3600)),
       minutes: this.pad2(Math.floor((totalSeconds % 3600) / 60)),
-      seconds: this.pad2(totalSeconds % 60)
+      seconds: this.pad2(totalSeconds % 60),
     };
 
     this.setFlipValue('days', next.days);
@@ -195,10 +222,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  private setFlipValue(
-    key: 'days' | 'hours' | 'minutes' | 'seconds',
-    nextValue: string
-  ): void {
+  private setFlipValue(key: 'days' | 'hours' | 'minutes' | 'seconds', nextValue: string): void {
     const item = this.elapsedFlip[key];
 
     if (item.value === nextValue) {
@@ -230,7 +254,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
       days: String(Math.floor(totalSeconds / 86400)),
       hours: this.pad2(Math.floor((totalSeconds % 86400) / 3600)),
       minutes: this.pad2(Math.floor((totalSeconds % 3600) / 60)),
-      seconds: this.pad2(totalSeconds % 60)
+      seconds: this.pad2(totalSeconds % 60),
     };
 
     this.setCountdownFlipValue('days', next.days);
@@ -243,7 +267,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
 
   private setCountdownFlipValue(
     key: 'days' | 'hours' | 'minutes' | 'seconds',
-    nextValue: string
+    nextValue: string,
   ): void {
     const item = this.countdownFlip[key];
 
